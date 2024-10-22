@@ -1,17 +1,21 @@
 chrome.commands.onCommand.addListener((command) => {
-    if (command === "next-tab") {
-        chrome.tabs.query({ currentWindow: true}, (tabs) => {
-            const activeTab = tabs.findIndex(tab => tab.active);
-            const nextTabIndex = (activeTab + 1) % tabs.length;
-            chrome.tabs.update(tabs[nextTabIndex].id, { active: true });
-        });
-    }
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+        if (tabs.length === 0) return; //keine Tabs offen
 
-    if (command === "previous-tab") {
-        chrome.tabs.query({ currentWindow: true}, (tabs) => {
-            const activeTab = tabs.findIndex(tab => tab.active);
-            const previousTabIndex = (activeTab - 1) % tabs.length;
-            chrome.tabs.update(tabs[previousTabIndex].id, { active: true });
-        });
-    }
+        const activeTab = tabs.findIndex(tab => tab.active);
+        
+        if (command === "next-tab") {
+            const nextTabIndex = (activeTab + 1) % tabs.length;
+            if (tabs[nextTabIndex] && tabs[nextTabIndex].id) {
+                chrome.tabs.update(tabs[nextTabIndex].id, { active: true});
+            }
+        }
+        
+        if (command === "previous-tab") {
+            const previousTabIndex = (activeTab - 1 + tabs.length) % tabs.length;
+            if (tabs[previousTabIndex] && tabs[previousTabIndex].id) {
+                chrome.tabs.update(tabs[previousTabIndex].id, { active: true });
+            }
+        }
+    });
 });
